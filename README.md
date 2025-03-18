@@ -1,5 +1,7 @@
 # The Theseus Programming Language
 
+<img src="/assets/logo.png" width="200" /> 
+
 *Theseus* is a simple yet powerful programming language. There are two main ideas.
 
 1. Theseus uses strings, nothing else. There are no numbers, booleans or
