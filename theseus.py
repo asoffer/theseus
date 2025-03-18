@@ -15,10 +15,11 @@ from lark import Lark
 PARSER = Lark(r"""
     program.1: command*
 
-    command.1: exec | replace | print | other
+    command.1: exec | replace | import | print | other
 
     exec.1: "exec"
     replace.1: ESCAPED_STRING "->" ESCAPED_STRING
+    import.1: "import" ESCAPED_STRING
     print.1: "print" ESCAPED_STRING
 
     other: /.+/
@@ -27,19 +28,25 @@ PARSER = Lark(r"""
     %import common.WS
     %ignore WS
 
-    """, start='program')
+    """, start='program', propagate_positions=True)
 
 def interpret(tree, text, debug):
     if debug:
         os.system("clear")
+        print("#" * 80)
         print(text)
+        print("#" * 80)
         time.sleep(0.3)
 
     for subtree in tree.children:
         for subtree in subtree.children:
             if subtree.data == "exec":
                 return text
-            if subtree.data == "print":
+            elif subtree.data == "import":
+                text = text[subtree.meta.start_pos:] + open(
+                    ast.literal_eval(subtree.children[0].value), 'r'
+                ).read() + text[:subtree.meta.end_pos]
+            elif subtree.data == "print":
                 print(ast.literal_eval(subtree.children[0].value))
             elif subtree.data == "replace":
                 find = ast.literal_eval(subtree.children[0].value)
